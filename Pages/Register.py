@@ -1,12 +1,15 @@
 import streamlit as st
 from Backend.UserAuth import registerUser
 
+st.sidebar.error("Please login to access the application")
 #register Page
 st.title("Register")
-email = st.text_input("Email")
-password = st.text_input("Password", type="password")
+#input fields for email and password
+email = st.text_input("Email", key="register_email")
+password = st.text_input("Password", type="password", key="register_password")
 
 #register button
-if st.button("Register"):
+if st.button("Register", key="register_acc"):
+    #call registerUser function
     message = registerUser(email, password)
     st.success(message)

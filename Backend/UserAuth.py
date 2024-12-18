@@ -3,6 +3,7 @@ import requests
 from firebase_admin import credentials, auth
 from dotenv import load_dotenv
 import os
+import streamlit as st
 
 #load environment variables from .env file
 load_dotenv('Keys.env')
@@ -12,6 +13,7 @@ FIREBASE_API_KEY = os.getenv("FIREBASE_API_KEY")
 #global variable to track initialization of firebase app
 firebase_initialized = False
 
+#initialize firebase app
 def initFirebaseApp():
     #initialize firebase app if not already initialized
     global firebase_initialized
@@ -23,6 +25,15 @@ def initFirebaseApp():
         #set flag to True
         firebase_initialized = True
 
+#initialize session state
+def intialiseSession():
+    #initialize session state variables
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
+    if "user_id" not in st.session_state:
+        st.session_state.user_id = None
+
+#register user with email and password
 def registerUser(email, password):
     #initialize firebase app
     initFirebaseApp()
@@ -32,7 +43,8 @@ def registerUser(email, password):
         return f"user {user.email} created successfully"
     except Exception as e:
         return f"Error registering user: {e}"
-    
+
+#login user with email and password   
 def loginUser(email, password):
     #send request to firebase auth REST API
     url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
