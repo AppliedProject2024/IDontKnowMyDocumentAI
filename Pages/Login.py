@@ -12,11 +12,17 @@ password = st.text_input("Password", type="password", key="login_password")
 if st.button("Login"):
     #call loginUser function and store the result
     data = loginUser(email, password)
+    print(data)
     #check if login was successful
-    if data:
+    #if email is not verified
+    if data == "unverified":
+        st.error("Email not verified. Please check your email for verification link")
+    #if login successful
+    elif data:
         st.success("Login Successful")
         st.session_state.logged_in = True
         st.switch_page("Main.py")
+    #if login failed
     else:
         st.error("Login Failed")
 #register page button

@@ -67,7 +67,18 @@ def loginUser(email, password):
     #check if request was successful
     if response.status_code == 200:
         data = response.json()
-        return data
+
+        try:
+            #get user details to check verification status
+            user = auth.get_user_by_email(email)
+
+            #check if email is verified
+            if not user.email_verified:
+                return "unverified"
+        except Exception as e:
+            return f"Error getting user details: {str(e)}"
+        
+        return data #sucessful login return data
     else:
         return None
     
