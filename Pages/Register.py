@@ -1,6 +1,7 @@
 import streamlit as st
 from Backend.UserAuth import registerUser
 
+
 st.sidebar.error("Please login to access the application")
 #register Page
 st.title("Register")

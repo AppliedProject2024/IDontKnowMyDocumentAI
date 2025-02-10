@@ -16,10 +16,9 @@ firebase_initialized = False
 #initialize firebase app
 def initFirebaseApp():
     #initialize firebase app if not already initialized
-    global firebase_initialized
-    if firebase_initialized:
+    if not firebase_admin._apps:
         #create a firebase app if not already created
-        cred = credentials.Certificate(r"C:\Users\keith\OneDrive\Desktop\IDKMD\firebase_credentials.json")
+        cred = credentials.Certificate(r".\firebase_credentials.json")
         #initialize firebase app
         firebase_admin.initialize_app(cred)
         #set flag to True
@@ -40,9 +39,18 @@ def registerUser(email, password):
     try:
         #create user with email and password
         user = auth.create_user(email = email, password = password)
-        return f"user {user.email} created successfully"
+        
+        #send verification email
+        auth.update_user(user.uid, email_verified=False)
+        link = auth.generate_email_verification_link(email)
+
+        #send email verification link(temporary just printing)
+        print(f"Verification link: {link}") #temporary just printing
+
+        return f"User {email} registered successfully! Please check your email for verification."
+
     except Exception as e:
-        return f"Error registering user: {e}"
+        return f"Error registering user: {str(e)}"
 
 #login user with email and password   
 def loginUser(email, password):
