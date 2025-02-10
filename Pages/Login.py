@@ -1,5 +1,8 @@
 import streamlit as st
-from Backend.UserAuth import loginUser
+from Backend.UserAuth import loginUser, intialiseSession
+
+#initialise session
+intialiseSession()
 
 if  not st.session_state.logged_in:
     st.sidebar.error("Please login to access the application")
@@ -23,6 +26,7 @@ if st.button("Login"):
     elif data:
         st.success("Login Successful")
         st.session_state.logged_in = True
+        st.session_state.user_email = data["email"]
         st.switch_page("Main.py")
     #if login failed
     else:

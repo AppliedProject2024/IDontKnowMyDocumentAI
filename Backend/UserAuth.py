@@ -41,6 +41,8 @@ def intialiseSession():
         st.session_state.logged_in = False
     if "user_id" not in st.session_state:
         st.session_state.user_id = None
+    if "user_email" not in st.session_state:
+        st.session_state.user_email = None  # Ensure email variable exists
 
 #register user with email and password
 def registerUser(email, password):
@@ -98,6 +100,9 @@ def sendVerificationEmail(email, verification_link):
 
 #login user with email and password   
 def loginUser(email, password):
+
+    initFirebaseApp()
+    
     #send request to firebase auth REST API
     url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
     #payload for POST request
@@ -122,7 +127,16 @@ def loginUser(email, password):
         except Exception as e:
             return f"Error getting user details: {str(e)}"
         
-        return data #sucessful login return data
+        return {"email": email} #sucessful login return data
     else:
         return None
+    
+def sidebarAuth():
+    if st.session_state.logged_in:
+        st.sidebar.write(f"Logged in as: {st.session_state.user_email}")
+
+        if st.sidebar.button("Logout"):
+            st.session_state.logged_in = False
+            st.session_state.user_email = None
+            st.switch_page("Pages/Login.py")
     

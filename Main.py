@@ -1,8 +1,9 @@
 import streamlit as st
-from Backend.UserAuth import intialiseSession
+from Backend.UserAuth import intialiseSession, sidebarAuth
 
 #initialise session
 intialiseSession()
+sidebarAuth()
 
 #check if user is logged in
 if  not st.session_state.logged_in:
