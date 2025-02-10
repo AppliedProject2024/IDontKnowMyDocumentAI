@@ -4,11 +4,21 @@ from firebase_admin import credentials, auth
 from dotenv import load_dotenv
 import os
 import streamlit as st
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import smtplib
+
 
 #load environment variables from .env file
 load_dotenv('Keys.env')
 #get api key from environment variables
 FIREBASE_API_KEY = os.getenv("FIREBASE_API_KEY")
+
+#SMTP credentials
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT"))
+EMAIL_USER = os.getenv("EMAIL_USER")
+EMAIL_PASS = os.getenv("EMAIL_PASS")
 
 #global variable to track initialization of firebase app
 firebase_initialized = False
@@ -44,13 +54,47 @@ def registerUser(email, password):
         auth.update_user(user.uid, email_verified=False)
         link = auth.generate_email_verification_link(email)
 
-        #send email verification link(temporary just printing)
-        print(f"Verification link: {link}") #temporary just printing
+        #send email
+        email_status = sendVerificationEmail(email, link)
 
         return f"User {email} registered successfully! Please check your email for verification."
 
     except Exception as e:
         return f"Error registering user: {str(e)}"
+    
+#send verification email
+def sendVerificationEmail(email, verification_link):
+    try:
+        #set up emal message
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_USER
+        msg['To'] = email
+        msg['Subject'] = "Email Verification - IDontKnowMyDocument AI"
+
+        #body
+        body = f"""
+        <html>
+        <body>
+            <p>Hello,</p>
+            <p>Thank you for signing up to IDontKnowMyDocument AI!</p>
+            <p>Please find below a link to verify your email address:</p>
+            <a href="{verification_link}">Verify Email</a>
+            <p>Thank you! We hope you enjoy using our Application!</p>
+        </body>
+        </html>
+        """
+        msg.attach(MIMEText(body, 'html'))
+
+        #connect to SMTP server
+        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+        server.starttls()#secure connection
+        server.login(EMAIL_USER, EMAIL_PASS)#login to email
+        server.sendmail(EMAIL_USER, email, msg.as_string())#send email
+        server.quit()#close connection
+
+        return "Verification email sent successfully!"
+    except Exception as e:
+        return f"Error sending verification email: {str(e)}"
 
 #login user with email and password   
 def loginUser(email, password):

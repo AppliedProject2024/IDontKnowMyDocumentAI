@@ -1,7 +1,9 @@
 import streamlit as st
 from Backend.UserAuth import loginUser
 
-st.sidebar.error("Please login to access the application")
+if  not st.session_state.logged_in:
+    st.sidebar.error("Please login to access the application")
+
 #login Page
 st.title("Login")
 #input fields for email and password
@@ -24,7 +26,7 @@ if st.button("Login"):
         st.switch_page("Main.py")
     #if login failed
     else:
-        st.error("Login Failed")
+        st.error("Login Failed, Please ensure your email and password are correct")
 #register page button
 if st.button("Register", key="register_page"):
     st.switch_page("Pages/Register.py")
