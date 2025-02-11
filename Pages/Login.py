@@ -1,11 +1,14 @@
 import streamlit as st
-from Backend.UserAuth import loginUser, intialiseSession
+from Backend.UserAuth import loginUser, intialiseSession, retrieveUser, sidebarAuth
+from streamlit_js_eval import streamlit_js_eval
 
 #initialise session
 intialiseSession()
+retrieveUser()
+sidebarAuth()
 
-if  not st.session_state.logged_in:
-    st.sidebar.error("Please login to access the application")
+if st.session_state.logged_in:
+    st.write("You are already logged in, Logging in with a new account will log you out!")
 
 #login Page
 st.title("Login")
@@ -24,10 +27,7 @@ if st.button("Login"):
         st.error("Email not verified. Please check your email for verification link")
     #if login successful
     elif data:
-        st.success("Login Successful")
-        st.session_state.logged_in = True
-        st.session_state.user_email = data["email"]
-        st.switch_page("Main.py")
+        st.success("Login Successful!")
     #if login failed
     else:
         st.error("Login Failed, Please ensure your email and password are correct")

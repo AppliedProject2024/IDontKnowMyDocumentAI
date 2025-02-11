@@ -1,8 +1,8 @@
 import streamlit as st
-from Backend.UserAuth import registerUser
+from Backend.UserAuth import registerUser, sidebarAuth
 
+sidebarAuth()
 
-st.sidebar.error("Please login to access the application")
 #register Page
 st.title("Register")
 #input fields for email and password

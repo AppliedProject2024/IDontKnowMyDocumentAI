@@ -7,6 +7,8 @@ import streamlit as st
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
+from streamlit_js_eval import streamlit_js_eval
+import time
 
 
 #load environment variables from .env file
@@ -100,9 +102,8 @@ def sendVerificationEmail(email, verification_link):
 
 #login user with email and password   
 def loginUser(email, password):
-
     initFirebaseApp()
-    
+
     #send request to firebase auth REST API
     url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
     #payload for POST request
@@ -127,10 +128,15 @@ def loginUser(email, password):
         except Exception as e:
             return f"Error getting user details: {str(e)}"
         
-        return {"email": email} #sucessful login return data
+        st.session_state.logged_in = True
+        st.session_state.user_email = email
+        streamlit_js_eval(js_expressions=f"localStorage.setItem('user_email', '{email}');")
+        time.sleep(1) #wait 1 second to ensure local storage is set
+        st.switch_page("Main.py")
     else:
         return None
     
+#sidebar authentication display
 def sidebarAuth():
     if st.session_state.logged_in:
         st.sidebar.write(f"Logged in as: {st.session_state.user_email}")
@@ -138,5 +144,24 @@ def sidebarAuth():
         if st.sidebar.button("Logout"):
             st.session_state.logged_in = False
             st.session_state.user_email = None
+            streamlit_js_eval(js_expressions="localStorage.removeItem('user_email')")
             st.switch_page("Pages/Login.py")
-    
+    elif not st.session_state.logged_in:
+        st.sidebar.error("Please login to access the application")
+
+#retrieve user details from local storage
+def retrieveUser():
+    #check if retrieval has already been attempted
+    if "local_storage_retrieved" not in st.session_state:
+        st.session_state.local_storage_retrieved = False
+
+    if not st.session_state.local_storage_retrieved:
+        user_email = streamlit_js_eval(js_expressions="localStorage.getItem('user_email')")
+        print(f"retrieved email: {user_email}")
+
+        if user_email:
+            st.session_state.user_email = user_email
+            st.session_state.logged_in = True
+            st.session_state.local_storage_retrieved = True  #mark retrieval as done
+        else:
+            time.sleep(0.5)  #wait for 0.5 seconds to retrieve local storage
