@@ -1,9 +1,8 @@
 import streamlit as st
-from Backend.UserAuth import intialiseSession, sidebarAuth, retrieveUser 
+from Backend.UserAuth import intialiseSession, sidebarAuth 
 
 #initialise session
 intialiseSession()
-retrieveUser()
 sidebarAuth()
 
 #check if user is logged in
