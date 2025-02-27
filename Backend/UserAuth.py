@@ -10,15 +10,29 @@ API_URL = os.getenv("API_URL")
 
 session = requests.Session()
 
-#initialize session state
+#initialise session state
 def intialiseSession():
-    #initialize session state variables
+    #initialise session state variables
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
     if "user_id" not in st.session_state:
         st.session_state.user_id = None
     if "user_email" not in st.session_state:
         st.session_state.user_email = None
+
+    #check if user is logged in
+    if not st.session_state.logged_in:
+        try: 
+            #send get request to check session checks for refresh token
+            response = session.get(API_URL + "/check-session")
+            #if successful sets access token and can log user in
+            if response.status_code == 200:
+                st.session_state.logged_in = True
+                st.session_state.user_email = response.json().get("email")
+        except requests.exceptions.RequestException as e:
+            st.error("Error connecting to server.")
+            return None
+
 
 #register user with email and password
 def registerUser(email, password):
@@ -69,7 +83,6 @@ def loginUser(email, password):
         elif response.status_code == 403 and "Email not verified" in response_data.get("error", ""):
             return "unverified"
         else:
-            #return error message
             st.error(response_data.get("error", "Login failed."))
             return None
     except requests.exceptions.RequestException as e:
