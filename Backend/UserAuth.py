@@ -1,21 +1,14 @@
-import firebase_admin
 import requests
-from firebase_admin import credentials, auth
 from dotenv import load_dotenv
 import os
 import streamlit as st
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import smtplib
-from streamlit_js_eval import streamlit_js_eval
-
 
 #load environment variables from .env file
 load_dotenv('Keys.env')
-#get api key from environment variables
-FIREBASE_API_KEY = os.getenv("FIREBASE_API_KEY")
 #backend api url from environment variables
 API_URL = os.getenv("API_URL")
+
+session = requests.Session()
 
 #initialize session state
 def intialiseSession():
@@ -57,30 +50,28 @@ def registerUser(email, password):
 def loginUser(email, password):
     #check if email and password are empty
     if not email or not password:
-        return None 
-    
+        return None
     #create payload for login
     payload = {"email": email, "password": password}
     
     try:
-        #send post request to login user
-        response = requests.post(API_URL + "/login", json=payload)
+        #send POST request to login
+        response = session.post(API_URL + "/login", json=payload)
         response_data = response.json()
 
-        #check if login was successful
+        #if successful login
         if response.status_code == 200:
             #set session state variables
             st.session_state["logged_in"] = True
-            st.session_state["idToken"] = response_data["idToken"]
             st.session_state["user_email"] = email
-            return response_data  #successful login
-
+            return response_data
+        #if 403 email not verified
         elif response.status_code == 403 and "Email not verified" in response_data.get("error", ""):
             return "unverified"
-
         else:
+            #return error message
+            st.error(response_data.get("error", "Login failed."))
             return None
-
     except requests.exceptions.RequestException as e:
         st.error("Error connecting to server.")
         return None
@@ -98,3 +89,76 @@ def sidebarAuth():
             st.switch_page("Pages/Login.py")
     elif not st.session_state.logged_in:
         st.sidebar.error("Please login to access the application")
+
+#refresh token function
+def refresh_token():
+    try:
+        #send post request to get new access token
+        response = session.post(API_URL + "/refresh")
+        #check if response is successful
+        if response.status_code == 200:
+            return True
+        #if response is 401 no refresh token available log out user
+        else:
+            st.session.logged_in = False
+            st.session.user_email = None
+            return response.json().get("error", "Token refresh failed.")
+    except:
+        #if error connecting logout to be safe
+        st.error(f"Server error.")
+        st.session.logged_in = False
+        st.session.user_email = None
+        return False
+    
+#wrapper function to check if user session
+def api_request(endpoint, method, payload = None):
+    #url for api endpoint
+    url = API_URL + endpoint
+
+    try:
+        #check method and send request
+        if method == "GET":
+            response = session.get(url)
+        elif method == "POST":
+            response = session.post(url, json=payload)
+        elif method == "PUT":
+            response = session.put(url, json=payload)
+        elif method == "DELETE":
+            response = session.delete(url)
+        else:
+            return None
+
+        #if 401 no access token available must refresh token
+        if response.status_code == 401:
+            refresh_token()
+            #get a new token a send the request again
+            if method == "GET":
+                response = session.get(url)
+            elif method == "POST":
+                 response = session.post(url, json=payload)
+            elif method == "PUT":
+                response = session.put(url, json=payload)
+            elif method == "DELETE":
+                response = session.delete(url)
+            else:
+                return None
+        #if 401 no token log out user (backup to refresh method logout)
+        if response.status_code == 401:
+            st.warning("Your session has expired. Please login again.")
+            st.session_state.logged_in = False
+            st.session_state.user_email = None
+            return None
+        
+        #return response data if successful
+        return response.json()
+    except:
+        st.error("Error connecting to server.")
+        return None
+
+def test():
+    try:
+        response = api_request("/test", "GET")
+        return response
+    except requests.exceptions.RequestException as e:
+        st.error("Error connecting to server. here")
+        return None

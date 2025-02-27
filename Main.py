@@ -1,5 +1,5 @@
 import streamlit as st
-from Backend.UserAuth import intialiseSession, sidebarAuth
+from Backend.UserAuth import intialiseSession, sidebarAuth, test
 
 #initialise session
 intialiseSession()
@@ -53,3 +53,8 @@ else:
             st.write(f"Translated text: [Translated version of '{user_input}' in {language}]")
         else:
             st.warning("Please enter text to translate.")
+
+    if st.button("test"):
+        data = test()
+        st.write(data)
+        
