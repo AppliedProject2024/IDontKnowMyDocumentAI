@@ -21,5 +21,5 @@ def send_feedback(feedback_type, feedback):
 #retrieve feedback from server (test)
 def get_feedback():
     response = api_request("/feedback/get", "GET")
-    return response
+    return response['data']
 

@@ -125,7 +125,7 @@ def refresh_token():
         return False
     
 #wrapper function to check if user session
-def api_request(endpoint, method, payload = None):
+def api_request(endpoint, method, payload = None, files = None):
     #url for api endpoint
     url = API_URL + endpoint
 
@@ -134,7 +134,10 @@ def api_request(endpoint, method, payload = None):
         if method == "GET":
             response = session.get(url)
         elif method == "POST":
-            response = session.post(url, json=payload)
+            if files:
+                response = session.post(url, files=files)
+            else:
+                response = session.post(url, json=payload)
         elif method == "PUT":
             response = session.put(url, json=payload)
         elif method == "DELETE":
@@ -149,7 +152,10 @@ def api_request(endpoint, method, payload = None):
             if method == "GET":
                 response = session.get(url)
             elif method == "POST":
-                 response = session.post(url, json=payload)
+                if files:
+                    response = session.post(url, files=files)
+                else:
+                    response = session.post(url, json=payload)
             elif method == "PUT":
                 response = session.put(url, json=payload)
             elif method == "DELETE":
@@ -164,7 +170,10 @@ def api_request(endpoint, method, payload = None):
             return None
         
         #return response data if successful
-        return response.json()
+        return {
+            'status_code': response.status_code,
+            'data': response.json() if response.content else None
+        }
     except:
         st.error("Error connecting to server.")
         return None

@@ -1,5 +1,5 @@
 import streamlit as st
-from Backend.FileProcessing import *
+from Backend.FileProcessing import upload_file
 from Backend.UserAuth import intialiseSession, sidebarAuth
 
 #initialise session
@@ -14,25 +14,24 @@ else:
     st.header("Upload Your Documents")
 
     #upload multiple files
-    uploaded_files = st.file_uploader(
+    uploaded_file = st.file_uploader(
         "Upload one or more PDF files", 
         type=["pdf"], #only accept pdf files
-        accept_multiple_files=True #accept multiple files
+        accept_multiple_files=False #accept multiple files
     )
 
     #check if any files are uploaded
-    if uploaded_files:
+    if uploaded_file:
         st.subheader("Uploaded Files")
         
-        #loop through each uploaded file
-        for uploaded_file in uploaded_files:
-            st.success(f"File '{uploaded_file.name}' uploaded successfully!")
-            #placeholder for processing the document
-            st.write(f"Processing '{uploaded_file.name}'...")
-            chunks = ExtractAndChunk(uploaded_file)
+        st.success(f"File '{uploaded_file.name}' uploaded successfully!")
+        #placeholder for processing the document
+        st.write(f"Processing '{uploaded_file.name}'...")
+        result = upload_file(uploaded_file)
+        #check if file was processed successfully
+        if result == 200:
+            st.success(f"File '{uploaded_file.name}' processed successfully!")
+        else:
+            st.error(f"Error processing '{uploaded_file.name}'")
 
-            #display the extracted text
-            st.subheader("Extracted Text:")
-            for idx, chunk in enumerate(chunks):
-                st.write(f"Chunk {idx+1}:")
-                st.write(chunk.page_content)
+           
