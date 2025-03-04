@@ -24,7 +24,7 @@ def intialiseSession():
     if not st.session_state.logged_in:
         try: 
             #send get request to check session checks for refresh token
-            response = session.get(API_URL + "/check-session")
+            response = session.get(API_URL + "/auth/check-session")
             #if successful sets access token and can log user in
             if response.status_code == 200:
                 st.session_state.logged_in = True
@@ -45,7 +45,7 @@ def registerUser(email, password):
     
     try:
         #send post request to register user
-        response = requests.post(API_URL + "/register", json=payload)
+        response = requests.post(API_URL + "/auth/register", json=payload)
         #get response data
         response_data = response.json()
 
@@ -70,7 +70,7 @@ def loginUser(email, password):
     
     try:
         #send POST request to login
-        response = session.post(API_URL + "/login", json=payload)
+        response = session.post(API_URL + "/auth/login", json=payload)
         response_data = response.json()
 
         #if successful login
@@ -99,6 +99,7 @@ def sidebarAuth():
             st.session_state.logged_in = False
             st.session_state.user_email = None
             #redirect to login page
+            api_request("/auth/logout", "POST")
             st.switch_page("Pages/Login.py")
     elif not st.session_state.logged_in:
         st.sidebar.error("Please login to access the application")
@@ -107,7 +108,7 @@ def sidebarAuth():
 def refresh_token():
     try:
         #send post request to get new access token
-        response = session.post(API_URL + "/refresh")
+        response = session.post(API_URL + "/auth/refresh")
         #check if response is successful
         if response.status_code == 200:
             return True
@@ -170,7 +171,7 @@ def api_request(endpoint, method, payload = None):
 
 def test():
     try:
-        response = api_request("/test", "GET")
+        response = api_request("/auth/test", "GET")
         return response
     except requests.exceptions.RequestException as e:
         st.error("Error connecting to server. here")

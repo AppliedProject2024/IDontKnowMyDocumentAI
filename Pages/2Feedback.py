@@ -1,5 +1,6 @@
 import streamlit as st
 from Backend.UserAuth import intialiseSession, sidebarAuth 
+from Backend.feedback import send_feedback
 
 #initialise session
 intialiseSession()
@@ -18,3 +19,5 @@ else:
     if st.button("Submit Feedback"):
         # Placeholder for storing feedback
         st.success("Thank you for your feedback!")
+        #send feedback
+        result = send_feedback(feedback_type,feedback_text)
