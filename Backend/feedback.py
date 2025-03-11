@@ -4,11 +4,6 @@ from dotenv import load_dotenv
 import os
 from Backend.UserAuth import api_request
 
-#get api url from environment variables
-API_URL_TEMPLATE = os.getenv("API_URL")
-#feedback api url
-API_URL = API_URL_TEMPLATE + "/feedback"
-
 #send feedback to server
 def send_feedback(feedback_type, feedback):
     try:   
