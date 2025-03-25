@@ -19,6 +19,10 @@ def intialiseSession():
         st.session_state.user_id = None
     if "user_email" not in st.session_state:
         st.session_state.user_email = None
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+    if "context_history" not in st.session_state:
+        st.session_state.context_history = [] 
 
     #check if user is logged in
     if not st.session_state.logged_in:

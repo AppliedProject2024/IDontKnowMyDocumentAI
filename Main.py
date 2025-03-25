@@ -1,35 +1,34 @@
 import streamlit as st
-from Backend.UserAuth import intialiseSession, sidebarAuth, test
+from Backend.UserAuth import intialiseSession, sidebarAuth
 from Backend.query import get_query
 
-#initialise session
+# Initialize session
 intialiseSession()
 sidebarAuth()
 
-data = ""
-
 #check if user is logged in
-if  not st.session_state.logged_in:
+if not st.session_state.logged_in:
     st.switch_page("Pages/Login.py")
 
-else:
-    #header
-    st.title("IDontKnowMyDocument AI")
-    st.subheader("Interact with your documents: Translate, Summarize, and Ask Questions")
+#header
+st.title("🤖 IDontKnowMyDocument AI")
 
-    #input Box for Questions or Text
-    user_input = st.text_area("Enter your text or ask a question:")
+#user input
+user_input = st.chat_input("Enter your question...")
 
-    #button to submit question or text
-    if st.button("Get Answer"):
-            if user_input:
-                data = get_query(user_input)
-            else:
-                st.warning("Please enter a question.")
+#if user submits a query
+if user_input:
+    #add user input to message queue
+    st.session_state.messages.append({"role": "user", "message": user_input})
 
-    #display response
-    st.write(data) 
+    #get AI response and context
+    with st.spinner("Thinking..."):
+        response, context = get_query(user_input)
 
-        
-        
-        
+    #add AI response to message queue
+    st.session_state.messages.append({"role": "assistant", "message": response})
+
+#display messages
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["message"])

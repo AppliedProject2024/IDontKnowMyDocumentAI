@@ -14,6 +14,7 @@ if not st.session_state.logged_in:
 else:
     #generating summary (place holder)
     st.title("Summary")
+    #text input for query
     query = st.text_input("Enter query for summarisation")
 
     if st.button("Get Summary"):
