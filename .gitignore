@@ -1,3 +1,5 @@
 Keys.env
 firebase_credentials.json
 **/__pycache__/
+-LAPTOP-QLLKNA6P.gitignore
+.vscode/*

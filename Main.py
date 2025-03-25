@@ -6,7 +6,7 @@ from Backend.query import get_query
 intialiseSession()
 sidebarAuth()
 
-data = None
+data = ""
 
 #check if user is logged in
 if  not st.session_state.logged_in:

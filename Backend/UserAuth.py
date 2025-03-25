@@ -162,12 +162,13 @@ def api_request(endpoint, method, payload = None, files = None):
                 response = session.delete(url)
             else:
                 return None
-        #if 401 no token log out user (backup to refresh method logout)
-        if response.status_code == 401:
-            st.warning("Your session has expired. Please login again.")
-            st.session_state.logged_in = False
-            st.session_state.user_email = None
-            return None
+            
+            #if 401 no token log out user (backup to refresh method logout)
+            if response.status_code == 401:
+                st.warning("Your session has expired. Please login again.")
+                st.session_state.logged_in = False
+                st.session_state.user_email = None
+                return None
         
         #return response data if successful
         return {
