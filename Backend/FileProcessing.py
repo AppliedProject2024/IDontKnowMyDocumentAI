@@ -20,3 +20,20 @@ def upload_file(file):
             return status_code
     except requests.exceptions.RequestException as e:
         st.error("Error connecting to server.")
+
+    
+#get filenames from server
+def get_user_documents():
+    try:
+        #send get request to get user documents
+        response = api_request("/file/extract", "GET")
+
+        #extract filenames
+        if response and "data" in response and "filenames" in response["data"]:
+            return response["data"]["filenames"]
+        
+        #return empty list if no filenames
+        return []
+    
+    except requests.exceptions.RequestException as e:
+        st.error("Error connecting to server.")
