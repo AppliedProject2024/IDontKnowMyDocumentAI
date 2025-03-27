@@ -22,7 +22,9 @@ def intialiseSession():
     if "messages" not in st.session_state:
         st.session_state.messages = []
     if "context_history" not in st.session_state:
-        st.session_state.context_history = [] 
+        st.session_state.context_history = []
+    if "summary" not in st.session_state:
+        st.session_state.summary = None
 
     #check if user is logged in
     if not st.session_state.logged_in:
