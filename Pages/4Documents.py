@@ -27,7 +27,12 @@ else:
 
             #create delete button on each row
             if cols[1].button("Delete", key=f"delete_{filename}"):
-                st.warning(f"Delete {filename}")
+                with st.spinner(f"Deleting '{filename}'..."):
+                    #delete file
+                    result = delete_file(filename)
+                #check if file was deleted successfully
+                if result:
+                    st.rerun()                    
 
     else:
         st.info("No documents uploaded yet.")

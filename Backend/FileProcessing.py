@@ -37,3 +37,12 @@ def get_user_documents():
     
     except requests.exceptions.RequestException as e:
         st.error("Error connecting to server.")
+
+def delete_file(filename):
+    try:
+        #send delete request to delete file
+        response = api_request("/file/delete", "DELETE", {"filename": filename})
+        
+        return response
+    except requests.exceptions.RequestException as e:
+        st.error("Error connecting to server.")

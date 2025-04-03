@@ -159,7 +159,7 @@ def api_request(endpoint, method, payload = None, files = None):
         elif method == "PUT":
             response = session.put(url, json=payload)
         elif method == "DELETE":
-            response = session.delete(url)
+            response = session.delete(url, json=payload)
         else:
             return None
 
@@ -177,7 +177,7 @@ def api_request(endpoint, method, payload = None, files = None):
             elif method == "PUT":
                 response = session.put(url, json=payload)
             elif method == "DELETE":
-                response = session.delete(url)
+                response = session.delete(url, json=payload)
             else:
                 return None
             
