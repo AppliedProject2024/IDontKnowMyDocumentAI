@@ -146,7 +146,7 @@ else:
                 
                 #if user was correct or not
                 if user_choice == correct_answer:
-                    st.success("✔️")
+                    st.success(f"✔️ {user_choice} is the correct answer!")
                 else:
                     st.error(f"❌ The correct answer is {correct_answer}")
 

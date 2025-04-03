@@ -1,5 +1,5 @@
 import streamlit as st
-from Backend.UserAuth import intialiseSession, sidebarAuth, test
+from Backend.UserAuth import intialiseSession, sidebarAuth
 from Backend.query import get_summary
 
 #initialise session

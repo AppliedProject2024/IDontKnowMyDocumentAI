@@ -13,8 +13,3 @@ def send_feedback(feedback_type, feedback):
     except requests.exceptions.RequestException as e:
         st.error("Error connecting to server.")
 
-#retrieve feedback from server (test)
-def get_feedback():
-    response = api_request("/feedback/get", "GET")
-    return response['data']
-
