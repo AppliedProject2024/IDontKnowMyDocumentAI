@@ -25,6 +25,18 @@ def intialiseSession():
         st.session_state.context_history = []
     if "summary" not in st.session_state:
         st.session_state.summary = None
+    if 'mcq_questions' not in st.session_state:
+        st.session_state.mcq_questions = []
+    if 'current_question' not in st.session_state:
+        st.session_state.current_question = 0
+    if 'user_answers' not in st.session_state:
+        st.session_state.user_answers = {}
+    if 'show_result' not in st.session_state:
+        st.session_state.show_result = False
+    if 'score' not in st.session_state:
+        st.session_state.score = 0
+    if 'last_question_answered' not in st.session_state:
+        st.session_state.last_question_answered = False
 
     #check if user is logged in
     if not st.session_state.logged_in:
@@ -183,12 +195,4 @@ def api_request(endpoint, method, payload = None, files = None):
         }
     except:
         st.error("Error connecting to server.")
-        return None
-
-def test():
-    try:
-        response = api_request("/auth/test", "GET")
-        return response
-    except requests.exceptions.RequestException as e:
-        st.error("Error connecting to server. here")
         return None
