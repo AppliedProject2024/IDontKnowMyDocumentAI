@@ -72,6 +72,9 @@ def registerUser(email, password):
         #get response data
         response_data = response.json()
 
+        st.write(response.status_code)
+        st.write(response.text)
+
         #check if registration was successful
         if response.status_code == 200:
             return st.success(f"{get_text('registration_success', st.session_state.language)}")
@@ -95,6 +98,9 @@ def loginUser(email, password):
         #send POST request to login
         response = session.post(API_URL + "/auth/login", json=payload)
         response_data = response.json()
+
+        st.write(response.status_code)
+        st.write(response.text)
 
         #if successful login
         if response.status_code == 200:
@@ -149,6 +155,16 @@ def sidebarAuth():
             try:
                 st.session_state.logged_in = False
                 st.session_state.user_email = None
+                st.session_state.messages = []
+                st.session_state.summary = None
+                st.session_state.context_history = []
+                st.session_state.mcq_questions = []
+                st.session_state.current_question = 0
+                st.session_state.user_answers = {}
+                st.session_state.show_result = False
+                st.session_state.score = 0
+                st.session_state.last_question_answered = False
+                st.session_state.language = "English"
                 #redirect to login page
                 api_request("/auth/logout", "POST")
                 st.switch_page("Pages/Login.py")
