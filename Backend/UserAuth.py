@@ -149,7 +149,7 @@ def sidebarAuth():
     if st.session_state.logged_in:
 
         #display user email in sidebar
-        st.sidebar.write(f"{get_text('logged_in_as', current_language)} {st.session_state.user_email}")
+        st.sidebar.text(f"{get_text('logged_in_as', current_language)} {st.session_state.user_email}")
         #if user logs out set session state variables to default
         if st.sidebar.button(f"{get_text('logout_button', current_language)}"):
             try:
