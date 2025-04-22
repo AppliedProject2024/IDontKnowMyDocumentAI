@@ -72,9 +72,6 @@ def registerUser(email, password):
         #get response data
         response_data = response.json()
 
-        st.write(response.status_code)
-        st.write(response.text)
-
         #check if registration was successful
         if response.status_code == 200:
             return st.success(f"{get_text('registration_success', st.session_state.language)}")
@@ -98,9 +95,6 @@ def loginUser(email, password):
         #send POST request to login
         response = session.post(API_URL + "/auth/login", json=payload)
         response_data = response.json()
-
-        st.write(response.status_code)
-        st.write(response.text)
 
         #if successful login
         if response.status_code == 200:
