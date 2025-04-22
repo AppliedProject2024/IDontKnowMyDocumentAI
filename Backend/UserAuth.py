@@ -167,7 +167,7 @@ def sidebarAuth():
                 st.session_state.language = "English"
                 #redirect to login page
                 api_request("/auth/logout", "POST")
-                st.switch_page("Pages/Login.py")
+                st.switch_page("pages/Login.py")
             except requests.exceptions.RequestException as e:
                 st.sidebar.error(f"{get_text('server_connection_error', current_language)}")
     #if user not logged in display login form
