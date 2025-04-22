@@ -2,6 +2,7 @@ import requests
 from dotenv import load_dotenv
 import os
 import streamlit as st
+from Backend.translations import get_text
 
 #load environment variables from .env file
 load_dotenv('Keys.env')
@@ -37,6 +38,8 @@ def intialiseSession():
         st.session_state.score = 0
     if 'last_question_answered' not in st.session_state:
         st.session_state.last_question_answered = False
+    if 'language' not in st.session_state:
+        st.session_state.language = "English"
 
     #check if user is logged in
     if not st.session_state.logged_in:
@@ -47,8 +50,10 @@ def intialiseSession():
             if response.status_code == 200:
                 st.session_state.logged_in = True
                 st.session_state.user_email = response.json().get("email")
+            else:
+                return (f"{get_text('session_expired', st.session_state.language)}")
         except requests.exceptions.RequestException as e:
-            st.error("Error connecting to server.")
+            st.error(f"{get_text('server_error', st.session_state.language)}")
             return None
 
 
@@ -56,7 +61,7 @@ def intialiseSession():
 def registerUser(email, password):
     #check if email and password are empty
     if not email or not password:
-        return "Please enter a valid email and password."
+        return f"{get_text('enter_valid_credentials', st.session_state.language)}"
     
     #create payload for registration
     payload = {"email": email, "password": password}
@@ -69,14 +74,14 @@ def registerUser(email, password):
 
         #check if registration was successful
         if response.status_code == 200:
-            return "Registration successful! Please check your email for a verification link."
+            return st.success(f"{get_text('registration_success', st.session_state.language)}")
 
         else:
-            return response_data.get("error", "Registration failed. Please try again.")
+            return st.error(f"{get_text('registration_failed', st.session_state.language)}")
 
     except requests.exceptions.RequestException as e:
-        st.error("Error connecting to server.")
-        return "Registration failed. Please try again."
+        st.error(f"{get_text('server_connection_error', st.session_state.language)}")
+        return st.error(f"{get_text('registration_failed', st.session_state.language)}")
 
 #login user with email and password   
 def loginUser(email, password):
@@ -101,26 +106,57 @@ def loginUser(email, password):
         elif response.status_code == 403 and "Email not verified" in response_data.get("error", ""):
             return "unverified"
         else:
-            st.error(response_data.get("error", "Login failed."))
             return None
     except requests.exceptions.RequestException as e:
-        st.error("Error connecting to server.")
+        st.error(f"{get_text('server_connection_error', st.session_state.language)}")
         return None
     
 #sidebar authentication display
 def sidebarAuth():
     #if user logged in display user email and logout button
+    current_language = st.session_state.get("language", "English")
+    previous_language = st.session_state.get("language", "English")
+
+    language = st.sidebar.selectbox(
+        get_text("language_label", current_language),
+        [
+            "English",
+            "Spanish", 
+            "French", 
+            "Portuguese",
+            "German"
+        ],
+        index=[
+            "English",
+            "Spanish", 
+            "French", 
+            "Portuguese",
+            "German"
+        ].index(previous_language),
+        key="language_selector"
+    )
+
+    if language != previous_language:
+        st.session_state.language = language
+        st.rerun()
+
     if st.session_state.logged_in:
-        st.sidebar.write(f"Logged in as: {st.session_state.user_email}")
+
+        #display user email in sidebar
+        st.sidebar.write(f"{get_text('logged_in_as', current_language)} {st.session_state.user_email}")
         #if user logs out set session state variables to default
-        if st.sidebar.button("Logout"):
-            st.session_state.logged_in = False
-            st.session_state.user_email = None
-            #redirect to login page
-            api_request("/auth/logout", "POST")
-            st.switch_page("Pages/Login.py")
+        if st.sidebar.button(f"{get_text('logout_button', current_language)}"):
+            try:
+                st.session_state.logged_in = False
+                st.session_state.user_email = None
+                #redirect to login page
+                api_request("/auth/logout", "POST")
+                st.switch_page("Pages/Login.py")
+            except requests.exceptions.RequestException as e:
+                st.sidebar.error(f"{get_text('server_connection_error', current_language)}")
+    #if user not logged in display login form
     elif not st.session_state.logged_in:
-        st.sidebar.error("Please login to access the application")
+        st.sidebar.error(f"{get_text('login_required', current_language)}")
 
 #refresh token function
 def refresh_token():
@@ -134,10 +170,10 @@ def refresh_token():
         else:
             st.session.logged_in = False
             st.session.user_email = None
-            return response.json().get("error", "Token refresh failed.")
+            return f"{get_text('session_expired', st.session_state.language)}"
     except:
         #if error connecting logout to be safe
-        st.error(f"Server error.")
+        st.error(f"{get_text('server_connection_error', st.session_state.language)}")
         st.session.logged_in = False
         st.session.user_email = None
         return False
@@ -181,9 +217,9 @@ def api_request(endpoint, method, payload = None, files = None):
             else:
                 return None
             
-            #if 401 no token log out user (backup to refresh method logout)
+            #if 401 no token log out user
             if response.status_code == 401:
-                st.warning("Your session has expired. Please login again.")
+                st.warning(f"{get_text('session_expired', st.session_state.language)}")
                 st.session_state.logged_in = False
                 st.session_state.user_email = None
                 return None
@@ -194,5 +230,5 @@ def api_request(endpoint, method, payload = None, files = None):
             'data': response.json() if response.content else None
         }
     except:
-        st.error("Error connecting to server.")
+        st.error(f"{get_text('server_connection_error', st.session_state.language)}")
         return None

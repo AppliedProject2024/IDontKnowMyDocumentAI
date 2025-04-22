@@ -1,6 +1,7 @@
 import streamlit as st
 from Backend.UserAuth import intialiseSession, sidebarAuth
 from Backend.query import get_mcq, parse_mcq_response, select_option
+from Backend.translations import get_text
 
 #initialise session
 intialiseSession()
@@ -10,7 +11,7 @@ sidebarAuth()
 if not st.session_state.logged_in:
     st.switch_page("Pages/Login.py")
 else:
-    st.title("✔️MCQ")
+    st.title(f"{get_text('mcq_header', st.session_state.language)}")
     
     #check if user answered last question by checking current against total questions
     if (st.session_state.current_question == len(st.session_state.mcq_questions) - 1 and 
@@ -23,13 +24,20 @@ else:
     
     #input section for query
     with st.container():
-        query = st.text_input("Enter query for MCQ")
-        question_count = st.selectbox("Number of questions", [5, 10, 15, 20])
-        complexity = st.selectbox("Complexity level", ["low", "medium", "high"])
+        query = st.text_input(f"{get_text('enter_query_mcq', st.session_state.language)}")
         
-        if st.button("Create MCQ"):
+        question_count = st.selectbox(f"{get_text('number_of_questions', st.session_state.language)}", [5, 10, 15, 20])
+
+        complexity = st.selectbox(f"{get_text('select_complexity', st.session_state.language)}",
+                                    [
+                                        f"{get_text('complexity_low', st.session_state.language)}", 
+                                        f"{get_text('complexity_medium',st.session_state.language)}", 
+                                        f"{get_text('complexity_high', st.session_state.language)}"
+                                    ])
+            
+        if st.button(f"{get_text('create_mcq_button', st.session_state.language)}", use_container_width=True):
             if query:
-                with st.spinner("Thinking..."):
+                with st.spinner(f"{get_text('thinking', st.session_state.language)}"):
                     #request to backend for mcq
                     response, context = get_mcq(query, question_count, complexity)
                     #parse response to get questions
@@ -42,30 +50,30 @@ else:
                     st.session_state.last_question_answered = False
                     st.rerun()
             else:
-                st.warning("Please enter a query.")
+                st.warning(f"{get_text('please_enter_query', st.session_state.language)}")
     
     #display quiz section or results
     if st.session_state.mcq_questions:
         if st.session_state.show_result:
             #results page
             st.divider()
-            st.subheader("Quiz Results")
+            st.subheader(f"{get_text('quiz_results', st.session_state.language)}")
             #calculate score
             score_percent = (st.session_state.score / len(st.session_state.mcq_questions)) * 100
             
             #display score and progress bar
-            st.markdown(f"### Your score: {st.session_state.score} out of {len(st.session_state.mcq_questions)} ({score_percent:.1f}%)")
+            st.markdown(f"### {get_text('your_score', st.session_state.language)}: {st.session_state.score} out of {len(st.session_state.mcq_questions)} ({score_percent:.1f}%)")
             st.progress(score_percent/100)
             
             #question review
-            st.subheader("Question Review")
+            st.subheader(f"{get_text('question_review', st.session_state.language)}")
             for i, q in enumerate(st.session_state.mcq_questions):
                 #only show questions that were answered and not skipped
                 if i in st.session_state.user_answers:
                     user_choice = st.session_state.user_answers[i]
                     is_correct = user_choice == q['correct_answer']
                     
-                    with st.expander(f"Question {q['number']}: {is_correct and '✔️' or '❌'}"):
+                    with st.expander(f"{get_text('question', st.session_state.language)} {q['number']}: {is_correct and '✔️' or '❌'}"):
                         st.markdown(f"**{q['question']}**")
                         #display options with correct answer and user choice
                         for letter in ["A", "B", "C", "D"]:
@@ -90,18 +98,18 @@ else:
             total_questions = len(st.session_state.mcq_questions)
             current_q_num = st.session_state.current_question + 1
             st.progress(current_q_num / total_questions)
-            st.write(f"Question {current_q_num} of {total_questions}")
+            st.write(f"{get_text('question', st.session_state.language)} {current_q_num} {get_text('of', st.session_state.language)} {total_questions}")
             
             #get current question data
             current_q = st.session_state.mcq_questions[st.session_state.current_question]
             
             #display question
-            st.subheader(f"Question {current_q['number']}: {current_q['question']}")
+            st.subheader(f"{get_text('question', st.session_state.language)} {current_q['number']}: {current_q['question']}")
             
             #check if user already answered this question
             already_answered = st.session_state.current_question in st.session_state.user_answers
             
-            #lopp through options a b c d and retrieve text for each
+            #loop through options a b c d and retrieve text for each
             for option_letter in ["A", "B", "C", "D"]:
                 #get option text from current question
                 option_text = current_q['options'][option_letter]
@@ -146,9 +154,9 @@ else:
                 
                 #if user was correct or not
                 if user_choice == correct_answer:
-                    st.success(f"✔️ {user_choice} is the correct answer!")
+                    st.success(f"✔️ {user_choice} {get_text('correct_answer', st.session_state.language)}")
                 else:
-                    st.error(f"❌ The correct answer is {correct_answer}")
+                    st.error(f"❌ {get_text('incorrect_answer', st.session_state.language)} {correct_answer}")
 
             #navigate buttons
             st.divider()
@@ -157,7 +165,7 @@ else:
             with col1:
                 #ensure its not first question to show back button
                 if st.session_state.current_question > 0:
-                    if st.button("Previous", use_container_width=True):
+                    if st.button(f"{get_text('previous', st.session_state.language)}", use_container_width=True):
                         #set session state index back one question
                         st.session_state.current_question -= 1
                         st.rerun()
@@ -169,10 +177,10 @@ else:
                 #ensure there is a next question
                 if not is_last_question:
                     #not the last question show Next button
-                    next_button_text = "Next"
+                    next_button_text = f"{get_text('next', st.session_state.language)}"
                     #if its not already answered give option to skip instead of next
                     if not already_answered:
-                        next_button_text = "Skip"
+                        next_button_text = f"{get_text('skip', st.session_state.language)}"
                     #create button for next question based on state of current question
                     if st.button(next_button_text, use_container_width=True):
                         st.session_state.current_question += 1
@@ -180,13 +188,13 @@ else:
                 else:
                     #last question show finish button if answered
                     if already_answered:
-                        if st.button("Show Results", use_container_width=True):
+                        if st.button(f"{get_text('show_results', st.session_state.language)}", use_container_width=True):
                             #toggle show result seems as last question answered
                             st.session_state.show_result = True
                             st.rerun()
                     else:
                         #show skip button if not answered
-                        if st.button("Skip", use_container_width=True):
+                        if st.button(f"{get_text('skip', st.session_state.language)}", use_container_width=True):
                             #toggle show result seems as last question answered
                             st.session_state.show_result = True
                             st.rerun()

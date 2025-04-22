@@ -1,6 +1,7 @@
 import requests
 import streamlit as st
 from Backend.UserAuth import api_request
+from Backend.translations import get_text
 
 # send file to server
 def upload_file(file):
@@ -13,13 +14,13 @@ def upload_file(file):
         if status_code == 200:
             return 200
         elif status_code == 409:
-            st.warning("File has already been uploaded.")
+            st.warning(f"{get_text('file_already_uploaded', st.session_state.language)}")
             return 409
         else:
-            st.error("Error uploading file.")
+            st.error(f"{get_text('error_uploading_file', st.session_state.language)}")
             return status_code
     except requests.exceptions.RequestException as e:
-        st.error("Error connecting to server.")
+        st.error(f"{get_text('server_connection_error', st.session_state.language)}")
 
     
 #get filenames from server
@@ -36,7 +37,7 @@ def get_user_documents():
         return []
     
     except requests.exceptions.RequestException as e:
-        st.error("Error connecting to server.")
+        st.error(f"{get_text('server_connection_error', st.session_state.language)}")
 
 def delete_file(filename):
     try:
@@ -45,4 +46,4 @@ def delete_file(filename):
         
         return response
     except requests.exceptions.RequestException as e:
-        st.error("Error connecting to server.")
+        st.error(f"{get_text('server_connection_error', st.session_state.language)}")

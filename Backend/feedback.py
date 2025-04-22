@@ -1,8 +1,8 @@
 import requests
 import streamlit as st
 from dotenv import load_dotenv
-import os
 from Backend.UserAuth import api_request
+from Backend.translations import get_text
 
 #send feedback to server
 def send_feedback(feedback_type, feedback):
@@ -11,5 +11,5 @@ def send_feedback(feedback_type, feedback):
         response = api_request("/feedback/submit", "POST", {"feedback_type": feedback_type, "feedback": feedback})
         return response
     except requests.exceptions.RequestException as e:
-        st.error("Error connecting to server.")
+        st.error(f"{get_text('server_connection_error', st.session_state.language)}")
 
