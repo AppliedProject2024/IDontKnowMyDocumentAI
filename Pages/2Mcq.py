@@ -62,7 +62,7 @@ else:
             score_percent = (st.session_state.score / len(st.session_state.mcq_questions)) * 100
             
             #display score and progress bar
-            st.markdown(f"### {get_text('your_score', st.session_state.language)}: {st.session_state.score} out of {len(st.session_state.mcq_questions)} ({score_percent:.1f}%)")
+            st.markdown(f"### {get_text('your_score', st.session_state.language)} {st.session_state.score} out of {len(st.session_state.mcq_questions)} ({score_percent:.1f}%)")
             st.progress(score_percent/100)
             
             #question review

@@ -421,6 +421,14 @@ translations = {
         "Portuguese": "Erro ao processar ",
         "German": "Fehler bei der Verarbeitung von "
     },
+
+    "file_naming_tip": {
+       "English": "Tip: Use descriptive file names - you can search for content in specific files by including the file name in your query",
+       "Spanish": "Consejo: Utilice nombres de archivo descriptivos - puede buscar contenido en archivos específicos incluyendo el nombre del archivo en su consulta",
+       "French": "Conseil: Utilisez des noms de fichiers descriptifs - vous pouvez rechercher du contenu dans des fichiers spécifiques en incluant le nom du fichier dans votre requête",
+       "Portuguese": "Dica: Use nomes de arquivos descritivos - você pode pesquisar conteúdo em arquivos específicos incluindo o nome do arquivo em sua consulta",
+       "German": "Tipp: Verwenden Sie aussagekräftige Dateinamen - Sie können nach Inhalten in bestimmten Dateien suchen, indem Sie den Dateinamen in Ihre Suchanfrage einbeziehen"
+   },
     
     #documents Page
     "documents_header": {

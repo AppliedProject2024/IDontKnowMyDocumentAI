@@ -12,6 +12,8 @@ if not st.session_state.logged_in:
 else:
     #header for Upload Section
     st.header(f"{get_text('upload_header', st.session_state.language)}")
+    #subheader for Upload Section
+    st.text(f"{get_text('file_naming_tip', st.session_state.language)}")
 
     #upload multiple files
     uploaded_file = st.file_uploader(

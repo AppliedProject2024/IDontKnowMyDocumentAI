@@ -5,8 +5,9 @@ from Backend.translations import get_text
 
 def get_query(query_text):
     try:
+        language = st.session_state.language
         #send request with question to server
-        response = api_request("/ask/query", "POST", {"query_text": query_text})
+        response = api_request("/ask/query", "POST", {"query_text": query_text, "language": language})
         #retrieve AI response
         return response["data"].get("response", ""), response["data"].get("context", "")
     except Exception as e:
@@ -15,8 +16,9 @@ def get_query(query_text):
 
 def get_summary(query_text, word_num, complexity):
     try:
+        language = st.session_state.language
         #send request with question to server
-        response = api_request("/ask/summary", "POST", {"query_text": query_text, "word_num": word_num, "complexity": complexity})
+        response = api_request("/ask/summary", "POST", {"query_text": query_text, "word_num": word_num, "complexity": complexity, "language": language})
         #retrieve AI response
         return response["data"].get("response", ""), response["data"].get("context", "")
     except Exception as e:
@@ -24,8 +26,9 @@ def get_summary(query_text, word_num, complexity):
 
 def get_mcq(query_text, question_count, complexity):
     try:
+        language = st.session_state.language
         #send request with question to server
-        response = api_request("/ask/mcq", "POST", {"query_text": query_text, "question_count": question_count, "complexity": complexity})
+        response = api_request("/ask/mcq", "POST", {"query_text": query_text, "question_count": question_count, "complexity": complexity, "language": language})
         #retrieve AI response
         return response["data"].get("response", ""), response["data"].get("context", "")
     except Exception as e:

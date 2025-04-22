@@ -39,6 +39,7 @@ def get_user_documents():
     except requests.exceptions.RequestException as e:
         st.error(f"{get_text('server_connection_error', st.session_state.language)}")
 
+
 def delete_file(filename):
     try:
         #send delete request to delete file
