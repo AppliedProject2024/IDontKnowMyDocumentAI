@@ -9,7 +9,7 @@ sidebarAuth()
 
 #check if user is logged in
 if not st.session_state.logged_in:
-    st.switch_page("Pages/Login.py")
+    st.switch_page("pages/Login.py")
 else:
     #feedback Page
     st.header(f"{get_text('feedback_header', st.session_state.language)}")

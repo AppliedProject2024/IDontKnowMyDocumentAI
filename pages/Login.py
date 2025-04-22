@@ -32,4 +32,4 @@ if st.button(f"{get_text('login_button',st.session_state.language)}"):
 
 #register Page Button
 if st.button(f"{get_text('register_button',st.session_state.language)}", key="register_page"):
-    st.switch_page("Pages/Register.py")
+    st.switch_page("pages/Register.py")
