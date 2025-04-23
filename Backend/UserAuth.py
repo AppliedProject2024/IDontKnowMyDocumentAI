@@ -1,6 +1,5 @@
 import requests
 from dotenv import load_dotenv
-import uuid
 import os
 import streamlit as st
 from Backend.translations import get_text
@@ -15,8 +14,6 @@ session = requests.Session()
 #initialise session state
 def intialiseSession():
     #initialise session state variables
-    if "user_session_id" not in st.session_state:
-        st.session_state.user_session_id = str(uuid.uuid4())
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
     if "user_id" not in st.session_state:
@@ -194,7 +191,7 @@ def refresh_token():
 #wrapper function to check if user session
 def api_request(endpoint, method, payload = None, files = None):
     #url for api endpoint
-    url = API_URL + endpoint + f"?session_id={st.session_state.user_session_id}"
+    url = API_URL + endpoint
 
     try:
         #check method and send request
