@@ -9,11 +9,13 @@ load_dotenv('Keys.env')
 #backend api url from environment variables
 API_URL = os.getenv("API_URL")
 
-session = requests.Session()
-
 #initialise session state
 def intialiseSession():
     #initialise session state variables
+    if "refresh_token" not in st.session_state:
+        st.session_state.refresh_token = None
+    if "access_token" not in st.session_state:
+        st.session_state.access_token = None
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
     if "user_id" not in st.session_state:
@@ -43,18 +45,35 @@ def intialiseSession():
 
     #check if user is logged in
     if not st.session_state.logged_in:
-        try: 
-            #send get request to check session checks for refresh token
-            response = session.get(API_URL + "/auth/check-session")
-            #if successful sets access token and can log user in
-            if response.status_code == 200:
-                st.session_state.logged_in = True
-                st.session_state.user_email = response.json().get("email")
-            else:
-                return (f"{get_text('session_expired', st.session_state.language)}")
-        except requests.exceptions.RequestException as e:
-            st.error(f"{get_text('server_error', st.session_state.language)}")
-            return None
+        #check if access token is available
+        if st.session_state.access_token:
+            try: 
+                #send get request to check session checks for refresh token
+                response = api_request( "/auth/check-session", "GET")
+                #if successful sets access token and can log user in
+                if response and response.get("status_code") == 200:
+                    st.session_state.logged_in = True
+                    st.session_state.user_email = response.json().get("email")
+                else:
+                    #if 401 no access token available must refresh token
+                    if st.session_state.refresh_token:
+                        refresh = refresh_token()
+                        if not refresh:
+                            st.session_state.logged_in = False
+                            st.session_state.user_email = None
+                            st.session_state.access_token = None
+                            st.session_state.refresh_token = None
+                            return (f"{get_text('session_expired', st.session_state.language)}")
+                    #if no refresh token available log out user
+                    else:
+                        st.session_state.logged_in = False
+                        st.session_state.user_email = None
+                        st.session_state.access_token = None
+                        st.session_state.refresh_token = None
+                    return (f"{get_text('session_expired', st.session_state.language)}")
+            except requests.exceptions.RequestException as e:
+                st.error(f"{get_text('server_error', st.session_state.language)}")
+                return None
 
 
 #register user with email and password
@@ -93,7 +112,7 @@ def loginUser(email, password):
     
     try:
         #send POST request to login
-        response = session.post(API_URL + "/auth/login", json=payload)
+        response = requests.post(API_URL + "/auth/login", json=payload)
         response_data = response.json()
 
         #if successful login
@@ -101,6 +120,8 @@ def loginUser(email, password):
             #set session state variables
             st.session_state["logged_in"] = True
             st.session_state["user_email"] = email
+            st.session_state["access_token"] = response_data.get("access_token")
+            st.session_state["refresh_token"] = response_data.get("refresh_token")
             return response_data
         #if 403 email not verified
         elif response.status_code == 403 and "Email not verified" in response_data.get("error", ""):
@@ -147,6 +168,8 @@ def sidebarAuth():
         #if user logs out set session state variables to default
         if st.sidebar.button(f"{get_text('logout_button', current_language)}"):
             try:
+                st.session_state.access_token = None
+                st.session_state.refresh_token = None
                 st.session_state.logged_in = False
                 st.session_state.user_email = None
                 st.session_state.messages = []
@@ -160,7 +183,6 @@ def sidebarAuth():
                 st.session_state.last_question_answered = False
                 st.session_state.language = "English"
                 #redirect to login page
-                api_request("/auth/logout", "POST")
                 st.switch_page("pages/Login.py")
             except requests.exceptions.RequestException as e:
                 st.sidebar.error(f"{get_text('server_connection_error', current_language)}")
@@ -171,21 +193,33 @@ def sidebarAuth():
 #refresh token function
 def refresh_token():
     try:
-        #send post request to get new access token
-        response = session.post(API_URL + "/auth/refresh")
-        #check if response is successful
-        if response.status_code == 200:
-            return True
-        #if response is 401 no refresh token available log out user
-        else:
-            st.session.logged_in = False
-            st.session.user_email = None
-            return f"{get_text('session_expired', st.session_state.language)}"
+        headers = {}
+        #check if refresh token is available
+        if st.session_state.refresh_token:
+            headers["Authorization"] = f"Bearer {st.session_state.refresh_token}"
+            
+            #send post request to refresh token
+            response = requests.post(API_URL + "/auth/refresh", headers=headers)
+            
+            #check if refresh token was successful
+            if response.status_code == 200:
+                #set access token and refresh token in session state
+                response_data = response.json()
+                st.session_state.access_token = response_data.get("access_token")
+                return True
+            else:
+                #if refresh token fails set session state variables to default
+                st.session_state.logged_in = False
+                st.session_state.user_email = None
+                st.session_state.access_token = None
+                st.session_state.refresh_token = None
+                return False
     except:
-        #if error connecting logout to be safe
         st.error(f"{get_text('server_connection_error', st.session_state.language)}")
-        st.session.logged_in = False
-        st.session.user_email = None
+        st.session_state.logged_in = False
+        st.session_state.user_email = None
+        st.session_state.access_token = None
+        st.session_state.refresh_token = None
         return False
     
 #wrapper function to check if user session
@@ -194,36 +228,44 @@ def api_request(endpoint, method, payload = None, files = None):
     url = API_URL + endpoint
 
     try:
+        #set headers for request
+        headers = {}
+        #check if access token is available
+        if st.session_state.access_token:
+            headers["Authorization"] = f"Bearer {st.session_state.access_token}"
+        
         #check method and send request
         if method == "GET":
-            response = session.get(url)
+            response = requests.get(url, headers=headers)
         elif method == "POST":
             if files:
-                response = session.post(url, files=files)
+                response = requests.post(url, files=files, headers=headers)
             else:
-                response = session.post(url, json=payload)
+                response = requests.post(url, json=payload, headers=headers)
         elif method == "PUT":
-            response = session.put(url, json=payload)
+            response = requests.put(url, json=payload, headers=headers)
         elif method == "DELETE":
-            response = session.delete(url, json=payload)
+            response = requests.delete(url, json=payload, headers=headers)
         else:
             return None
 
         #if 401 no access token available must refresh token
         if response.status_code == 401:
             refresh_token()
+            #set headers for request again
+            headers["Authorization"] = f"Bearer {st.session_state.access_token}"
             #get a new token a send the request again
             if method == "GET":
-                response = session.get(url)
+                response = requests.get(url, headers=headers)
             elif method == "POST":
                 if files:
-                    response = session.post(url, files=files)
+                    response = requests.post(url, files=files, headers=headers)
                 else:
-                    response = session.post(url, json=payload)
+                    response = requests.post(url, json=payload, headers=headers)
             elif method == "PUT":
-                response = session.put(url, json=payload)
+                response = requests.put(url, json=payload, headers=headers)
             elif method == "DELETE":
-                response = session.delete(url, json=payload)
+                response = requests.delete(url, json=payload, headers=headers)
             else:
                 return None
             
@@ -232,6 +274,8 @@ def api_request(endpoint, method, payload = None, files = None):
                 st.warning(f"{get_text('session_expired', st.session_state.language)}")
                 st.session_state.logged_in = False
                 st.session_state.user_email = None
+                st.session_state.access_token = None
+                st.session_state.refresh_token = None
                 return None
         
         #return response data if successful
