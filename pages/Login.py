@@ -14,7 +14,7 @@ st.header(f"{get_text('login_header',st.session_state.language)}")
 #login inputs
 email = st.text_input(f"{get_text('email_label',st.session_state.language)}", key="login_email")
 password = st.text_input(f"{get_text('password_label',st.session_state.language)}", type="password", key="login_password")
-
+email = email.lower()
 #login Button
 if st.button(f"{get_text('login_button',st.session_state.language)}"):
     #call loginUser function
