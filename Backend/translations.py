@@ -150,6 +150,15 @@ translations = {
         "Portuguese": "Registrar",
         "German": "Registrieren"
     },
+
+    "institutional_email_warning": {
+        "English": "Warning: Due to institutional filtering, student email accounts may not receive the verification email. Please consider signing up with a Gmail account to ensure you receive the email.",
+        "Spanish": "Advertencia: Debido al filtrado institucional, es posible que las cuentas de correo electrónico de estudiantes no reciban el correo de verificación. Considere registrarse con una cuenta de Gmail para asegurarse de recibir el correo.",
+        "French": "Avertissement : En raison du filtrage institutionnel, les comptes e-mail étudiants peuvent ne pas recevoir l'e-mail de vérification. Veuillez envisager de vous inscrire avec un compte Gmail pour vous assurer de recevoir l'e-mail.",
+        "Portuguese": "Aviso: Devido a filtragem institucional, contas de e-mail estudantis podem não receber o e-mail de verificação. Por favor, considere se registrar com uma conta Gmail para garantir que você receba o e-mail.",
+        "German": "Warnung: Aufgrund institutioneller Filterung erhalten studentische E-Mail-Konten möglicherweise keine Bestätigungs-E-Mail. Bitte erwägen Sie die Anmeldung mit einem Gmail-Konto, um sicherzustellen, dass Sie die E-Mail erhalten."
+    },
+
     "logged_in_as": {
         "English": "Logged in as:",
         "Spanish": "Conectado como:",
