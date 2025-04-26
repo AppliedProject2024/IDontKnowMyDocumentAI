@@ -15,6 +15,9 @@ Multiple-choice questions are a grate way to learn for many students, and StudyB
 ## Cloning and running locally
 To run StudyBuddy-AI locally the following considerations must be taken.
 - Python version: 3.12.10
-- Packages: Outlined in 'requirmenst.txt' and can be installed using: 'pip install -r requirments.txt'
-- Backend: The backend API must be running in order to run the frontend this can be done by following the steps in the backend repository.
+- Packages: Outlined in 'requirements.txt and can be installed using: 'pip install -r requirements.txt'
+- Backend: The backend API must be running in order to run the frontend this can be done by following the steps in the backend repository. Once the Backend is up and running set check the 'Example.env' file here you will find a variable called API_URL you will need to add the backends url in here.
 - Run: Run the development server using : streamlit run Main.py
+
+## Deployed application:
+Rather then going to the hastle of cloning this application simply visit the deployed version [here](https://studybuddyai-frontend.onrender.com)
