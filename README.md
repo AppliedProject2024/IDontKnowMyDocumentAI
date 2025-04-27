@@ -1,6 +1,8 @@
 ﻿# StudyBuddy-AI Streamlit Frontend
 This repository contains the codebase for the Frontend of the StudyBuddy-AI web-application. This frontend interface is developed using Streamlit, utilising its UI components for a sleek and appealing user interface. The frontend also provides means of connecting to the Flask based Backend API developed for this application located in the Backend repository.
 
+A video has been uploaded to youtube demonstrating StudyBuddy-AI in order to allow users to understand how to operate the application this video can be found [here](https://www.youtube.com/watch?v=vXqaH4HBn64)
+
 ## AI powered tools
 The frontend supports the following AI powered tools that make up StudyBuddy-AI: 
 🤖Q&A:
